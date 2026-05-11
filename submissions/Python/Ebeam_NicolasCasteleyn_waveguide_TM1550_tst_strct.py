@@ -5,7 +5,6 @@ from ipkiss.technology import get_technology
 TECH = get_technology()
 
 class waveguide_tst_structure(i3.Circuit):
-    x0 = i3.PositiveNumberProperty(default=8, doc="Initial x-position of the waveguide")
     bend_radius = i3.PositiveNumberProperty(default=5.0, doc="Bend radius of the waveguides")
     fgc_spacing_y = i3.PositiveNumberProperty(default=127.0, doc="Spacing between the fiber grating couplers in the y-direction")
     fgc = i3.ChildCellProperty(doc="PCell for the fiber grating coupler")
@@ -23,8 +22,8 @@ class waveguide_tst_structure(i3.Circuit):
         fgc_spacing_y = self.fgc_spacing_y
 
         placement = [
-            i3.Place("fgc_1", (self.x0, 0), angle=180),
-            i3.Place("fgc_2", (self.x0, fgc_spacing_y), angle=180),
+            i3.Place("fgc_1", (0, 0), angle=0),
+            i3.Place("fgc_2", (0, fgc_spacing_y), angle=0),
             i3.ConnectManhattan(
                 [("fgc_1:opt1", "fgc_2:opt1", "fgc_1_opt1_to_fgc_1"),],
                 bend_radius=self.bend_radius,  # if this value is to big the manhattan connection will not be able to fit in the layout, if it is too small the connection will be very sharp and might cause losses. You can adjust this value to find a good balance between compactness and performance.
@@ -34,6 +33,25 @@ class waveguide_tst_structure(i3.Circuit):
 
         specs = instances + placement
         return specs
+    
+    class Layout(i3.Circuit.Layout):
+
+        def _generate_elements(self, elems):
+
+
+            elems += i3.Label(
+                layer=i3.TECH.PPLAYER.Text,
+                coordinate=(0.0, self.fgc_spacing_y),
+                text="opt_in_TM_1550_FC",
+                alignment=(
+                    i3.TEXT.ALIGN.LEFT,
+                    i3.TEXT.ALIGN.BOTTOM
+                ),
+                font=i3.TEXT.FONT.DEFAULT,
+                height=0.1,
+            )
+
+            return elems
     
     def _default_exposed_ports(self):
         exposed_ports = {

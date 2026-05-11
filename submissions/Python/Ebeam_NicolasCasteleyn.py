@@ -14,16 +14,16 @@ TECH = get_technology()
 
 # Parameters for the MZI sweep
 enable_TE_line = True
-enable_TM_line = True
+enable_TM_line = False
 enable_dummy = True
 enable_plotting = False
 visualize = True
 delay_lengths = [50.0, 75.0, 100.0, 125.0, 150.0]  # Desired delay lengths in micrometers
-delay_lengths_1 = [50.0, 75.0, 150.0, 100.0,]  # Desired delay lengths in micrometers
+delay_lengths_1 = [50.0, 75.0, 150.0, 100.0,][0]  # Desired delay lengths in micrometers
 fgc_spacing_y = 127.0
 bend_radius = 5.0
 x0, y0 = 40.0, 15.0
-x1, y1 = 75.0, y0 + fgc_spacing_y + 20.0  # Add some extra spacing between the MZI and the test structure
+x1, y1 = 75.0, y0 + fgc_spacing_y + 23.0  # Add some extra spacing between the MZI and the test structure
 spacing_x = [100.0, 100.0, 100.0, 100.0, 85.0]
 spacing_x1 = [130.0, 170.0, 170.0, 170.0, 0.0]  # Variable spacing for the TM MZIs to accommodate the test structure
 
@@ -49,6 +49,7 @@ if enable_dummy:
     specs.append(i3.Inst(dummy_name, wg_test_TM))
     # specs.append(i3.Place(dummy_name, (x_floorplan-50, y1)))
     specs.append(i3.Place(dummy_name, (263, y1+65)))
+    # specs.append(i3.FlipH(dummy_name))
 
 #%%
 # Create the MZI sweep
@@ -57,7 +58,7 @@ if enable_TE_line:
 
         # Instantiate the MZI
         mzi = Michelson_TE1550(
-            name=f"MichelsonTE1550_{ind}",
+            name=f"opt_in_TE_1550_Michelson_{ind}",
             fgc_spacing_y=fgc_spacing_y,
             bend_radius=bend_radius,
             delay_length=delay_length,
@@ -117,7 +118,7 @@ cell = i3.Circuit(
 # Layout
 cell_lv = cell.Layout()
 if visualize:
-    cell_lv.visualize(annotate=True)
+    cell_lv.visualize(annotate=False)
 cell_lv.write_gdsii(f"{circuit_name}.gds")
 
 # Circuit model
